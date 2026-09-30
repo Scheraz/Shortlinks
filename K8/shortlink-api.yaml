@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: shortlink-api
+  name: shortlink-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shortlink-api
+  template:
+    metadata:
+      labels:
+        app: shortlink-api
+    spec:
+      containers:
+      - image: shortlink-api:1.0
+        name: shortlink-api
+        envFrom:
+        - secretRef:
+            name: postgres-secret
+        - configMapRef:
+            name: api-config
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
